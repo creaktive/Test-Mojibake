@@ -1,0 +1,6 @@
+.build/*
+Test-Mojibake-*/*
+blib/*
+*.gz
+Makefile
+pm_to_blib
