@@ -1,0 +1,216 @@
+=head1 NAME
+
+Test::Mojibake - check your source for encoding misbehavior.
+
+=head1 VERSION
+
+version 0.1
+
+=head1 SYNOPSIS
+
+L<Test::Mojibake> lets you check for inconsistencies in source/documentation encoding, and report its results in standard L<Test::Simple> fashion.
+
+    use Test::Mojibake tests => $num_tests;
+    file_encoding_ok($file, 'Valid encoding');
+
+Module authors can include the following in a F<t/mojibake.t> file and have L<Test::Mojibake> automatically find and check all source files in a module distribution:
+
+    #!perl -T
+    use strict;
+
+    BEGIN {
+        unless ($ENV{RELEASE_TESTING}) {
+            require Test::More;
+            Test::More::plan(skip_all => 'these tests are for release candidate testing');
+        }
+    }
+
+    use Test::More;
+
+    eval { use Test::Mojibake; };
+    plan skip_all => 'Test::Mojibake required for source encoding testing' if $@;
+
+    all_files_encoding_ok();
+
+=head1 DESCRIPTION
+
+Many modern text editors automatically save files using UTF-8 codification, however, L<perl> interpreter does not expects it I<by default>. Whereas this does not represent a big deal on (most) backend-oriented programs, Web framework (L<Catalyst>, L<Mojolicious>) based applications will suffer of so-called L<Mojibake|http://en.wikipedia.org/wiki/Mojibake> (lit. "unintelligible sequence of characters").
+
+Even worse: if an editor saves BOM (Byte Order Mark, C<U+FEFF> character in Unicode) at the start of the script with executable bit set (on Unix systems), it won't execute at all, due to shebang corruption.
+
+Avoiding codification problems is quite simple:
+
+=over 4
+
+=item *
+
+Always C<use utf8>/C<use common::sense> when saving source as UTF-8;
+
+=item *
+
+Always specify C<=encoding utf8> when saving POD as UTF-8;
+
+=item *
+
+Do neither of above when saving as ISO-8859-1;
+
+=item *
+
+B<Never> save BOM (not that it's wrong; just avoid it as you'll barely notice it's presence when in trouble).
+
+=back
+
+However, if you find yourself upgrading old code to use UTF-8 or trying to standardize a big project with many developers each one using a different platform/editor, reviewing all files manually can be quite painful. Specially in cases when some files have multiple encodings (note: it all started when I realized that I<Gedit> & derivatives are unable to open files with character conversion tables).
+
+Enter the L<Test::Mojibake> C<;)>
+
+=head1 FUNCTIONS
+
+=head2 file_encoding_ok( FILENAME[, TESTNAME ] )
+
+Validates the codification of C<FILENAME>.
+
+When it fails, C<file_encoding_ok()> will report the probable cause.
+
+The optional second argument C<TESTNAME> is the name of the test.  If it is omitted, C<file_encoding_ok()> chooses a default test name "Mojibake test for FILENAME".
+
+=head2 all_files_encoding_ok( [@entries] )
+
+Validates codification of all the files under C<@entries>. It runs L<all_files()> on directories and assumes everything else to be a file to be tested. It calls the C<plan()> function for you (one test for each file), so you can't have already called C<plan>.
+
+If C<@entries> is empty or not passed, the function finds all source/documentation files in files in the F<blib> directory if it exists, or the F<lib> directory if not. A source/documentation file is one that ends with F<.pod>, F<.pl> and F<.pm>, or any file where
+the first line looks like a shebang line.
+
+=head2 all_files( [@dirs] )
+
+Returns a list of all the Perl files in I<@dirs> and in directories below. If no directories are passed, it defaults to F<blib> if F<blib> exists, or else F<lib> if not. Skips any files in CVS, .svn, .git and similar directories. See C<%Test::Mojibake::ignore_dirs> for a list of them.
+
+A Perl file is:
+
+=over 4
+
+=item *
+
+Any file that ends in F<.PL>, F<.pl>, F<.pm>, F<.pod>, or F<.t>;
+
+=item *
+
+Any file that has a first line with a shebang and C<"perl"> on it;
+
+=item *
+
+Any file that ends in F<.bat> and has a first line with C<"--*-Perl-*--"> on it.
+
+=back
+
+The order of the files returned is machine-dependent.  If you want them
+sorted, you'll have to sort them yourself.
+
+=head2 _detect_utf8( \$string )
+
+Detects presence of UTF-8 encoded characters in a referenced octet stream.
+
+Return codes:
+
+=over 4
+
+=item *
+
+0 - 8-bit characters detected, does not validate as UTF-8;
+
+=item *
+
+1 - only 7-bit characters;
+
+=item *
+
+2 - 8-bit characters detected, validates as UTF-8.
+
+=back
+
+Original code, in PHP: L<http://www.php.net/manual/en/function.utf8-encode.php#85293>
+
+=encoding utf8
+
+=head1 OPERATION
+
+L<Test::Mojibake> validates codification of both source (Perl code) and documentation (POD). Both are assumed to be encoded in ISO-8859-1 (aka latin1). Perl switches to UTF-8 through the statement:
+
+ use utf8;
+
+or:
+
+ use common::sense;
+
+Similarly, POD encoding can be changed via:
+
+ =encoding utf8
+
+Correspondingly, C<no utf8>/C<=encoding latin1> put Perl back into ISO-8859-1 mode.
+
+Actually, L<Test::Mojibake> only cares about UTF-8, as it is roughly safe to be detected. So, when UTF-8 characters are detected without preceding declaration, an error is reported. On the other way, non-UTF-8 characters in UTF-8 mode are wrong, either.
+
+UTF-8 BOM (Byte Order Mark) is also detected as an error. While Perl is OK handling BOM, your OS probably isn't. Check out:
+
+ ./bom.pl: line 1: $'\357\273\277#!/usr/bin/perl': command not found
+
+=head2 Caveats
+
+Whole-line source comments, like:
+
+ # this is a whole-line comment...
+ print "### hello world ###\n"; # ...and this os not
+
+are not checked at all. This is mainly because many scripts/modules do contain authors' names in headers, B<before> the proper encoding specification. So, if you happen to have some acutes/umlauts in your name and your editor sign your code in the similar way, you probably won't be happy with L<Test::Mojibake> flooding you with (false) error messages.
+
+If you are wondering why only whole-line comments are stripped, check the second line of the above example.
+
+=head1 SEE ALSO
+
+=over 4
+
+=item *
+
+L<common::sense>
+
+=item *
+
+L<Test::Perl::Critic>
+
+=item *
+
+L<Test::Pod>
+
+=item *
+
+L<Test::Pod::Coverage>
+
+=item *
+
+L<Test::Kwalitee>
+
+=back
+
+=head1 ACKNOWLEDGEMENTS
+
+This module is based on L<Test::Pod>.
+
+Thanks to
+Andy Lester,
+David Wheeler,
+Paul Miller
+and
+Peter Edwards
+for contributions and to C<brian d foy> for the original code.
+
+=head1 AUTHOR
+
+Stanislaw Pusep <stas@sysd.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2011 by Stanislaw Pusep.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
