@@ -6,12 +6,12 @@ package Test::Mojibake;
 
 =head1 SYNOPSIS
 
-C<Test::Mojibake> lets you check for inconsistencies in source/documentation encoding, and report its results in standard C<Test::Simple> fashion.
+L<Test::Mojibake> lets you check for inconsistencies in source/documentation encoding, and report its results in standard L<Test::Simple> fashion.
 
     use Test::Mojibake tests => $num_tests;
     file_encoding_ok($file, 'Valid encoding');
 
-Module authors can include the following in a F<t/mojibake.t> file and have C<Test::Mojibake> automatically find and check all source files in a module distribution:
+Module authors can include the following in a F<t/mojibake.t> file and have L<Test::Mojibake> automatically find and check all source files in a module distribution:
 
     #!perl -T
     use strict;
@@ -31,6 +31,55 @@ Module authors can include the following in a F<t/mojibake.t> file and have C<Te
     all_files_encoding_ok();
 
 =head1 DESCRIPTION
+
+Many modern text editors automatically save files using UTF-8 codification, however, L<perl> interpreter does not expects it I<by default>. Whereas this does not represent a big deal on (most) backend-oriented programs, Web framework (L<Catalyst>, L<Mojolicious>) based applications will suffer of so-called L<Mojibake|http://en.wikipedia.org/wiki/Mojibake> (lit. "unintelligible sequence of characters").
+
+Even worse: if an editor saves BOM (Byte Order Mark, C<U+FEFF> character in Unicode) at the start of the script with executable bit set (on Unix systems), it won't execute at all, due to shebang corruption.
+
+Avoiding codification problems is quite simple:
+
+=for :list
+* Always C<use utf8>/C<use common::sense> when saving source as UTF-8;
+* Always specify C<=encoding utf8> when saving POD as UTF-8;
+* Do neither of above when saving as ISO-8859-1;
+* B<Never> save BOM (not that it's wrong; just avoid it as you'll barely notice it's presence when in trouble).
+
+However, if you find yourself upgrading old code to use UTF-8 or trying to standardize a big project with many developers each one using a different platform/editor, reviewing all files manually can be quite painful. Specially in cases when some files have multiple encodings (note: it all started when I realized that I<Gedit> & derivatives are unable to open files with character conversion tables).
+
+Enter the L<Test::Mojibake> C<;)>
+
+=head1 OPERATION
+
+L<Test::Mojibake> validates codification of both source (Perl code) and documentation (POD). Both are assumed to be encoded in ISO-8859-1 (aka latin1). Perl switches to UTF-8 through the statement:
+
+ use utf8;
+
+or:
+
+ use common::sense;
+
+Similarly, POD encoding can be changed via:
+
+ =encoding utf8
+
+Correspondingly, C<no utf8>/C<=encoding latin1> put Perl back into ISO-8859-1 mode.
+
+Actually, L<Test::Mojibake> only cares about UTF-8, as it is roughly safe to be detected. So, when UTF-8 characters are detected without preceding declaration, an error is reported. On the other way, non-UTF-8 characters in UTF-8 mode are wrong, either.
+
+UTF-8 BOM (Byte Order Mark) is also detected as an error. While Perl is OK handling BOM, your OS probably isn't. Check out:
+
+ ./bom.pl: line 1: $'\357\273\277#!/usr/bin/perl': command not found
+
+=head2 Caveats
+
+Whole-line source comments, like:
+
+ # this is a whole-line comment...
+ print "### hello world ###\n"; # ...and this os not
+
+are not checked at all. This is mainly because many scripts/modules do contain authors' names in headers, B<before> the proper encoding specification. So, if you happen to have some acutes/umlauts in your name and your editor sign your code in the similar way, you probably won't be happy with L<Test::Mojibake> flooding you with (false) error messages.
+
+If you are wondering why only whole-line comments are stripped, check the second line of the above example.
 
 =cut
 
@@ -74,7 +123,11 @@ sub import {
 
 =func file_encoding_ok( FILENAME[, TESTNAME ] )
 
-...
+Validates the codification of C<FILENAME>.
+
+When it fails, C<file_encoding_ok()> will report the probable cause.
+
+The optional second argument C<TESTNAME> is the name of the test.  If it is omitted, C<file_encoding_ok()> chooses a default test name "Mojibake test for FILENAME".
 
 =cut
 
@@ -196,9 +249,9 @@ Returns a list of all the Perl files in I<@dirs> and in directories below. If no
 A Perl file is:
 
 =for :list
-* Any file that ends in F<.PL>, F<.pl>, F<.pm>, F<.pod>, or F<.t>.
-* Any file that has a first line with a shebang and "perl" on it.
-* Any file that ends in F<.bat> and has a first line with "--*-Perl-*--" on it.
+* Any file that ends in F<.PL>, F<.pl>, F<.pm>, F<.pod>, or F<.t>;
+* Any file that has a first line with a shebang and C<"perl"> on it;
+* Any file that ends in F<.bat> and has a first line with C<"--*-Perl-*--"> on it.
 
 The order of the files returned is machine-dependent.  If you want them
 sorted, you'll have to sort them yourself.
@@ -323,6 +376,7 @@ sub _detect_utf8 {
 =head1 SEE ALSO
 
 =for :list
+* L<common::sense>
 * L<Test::Perl::Critic>
 * L<Test::Pod>
 * L<Test::Pod::Coverage>
