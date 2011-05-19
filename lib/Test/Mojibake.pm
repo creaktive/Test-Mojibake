@@ -230,8 +230,7 @@ sub file_encoding_ok {
 
 Validates codification of all the files under C<@entries>. It runs L<all_files()> on directories and assumes everything else to be a file to be tested. It calls the C<plan()> function for you (one test for each file), so you can't have already called C<plan>.
 
-If C<@entries> is empty or not passed, the function finds all source/documentation files in files in the F<blib> directory if it exists, or the F<lib> directory if not. A source/documentation file is one that ends with F<.pod>, F<.pl> and F<.pm>, or any file where
-the first line looks like a shebang line.
+If C<@entries> is empty or not passed, the function finds all source/documentation files in files in the F<blib> directory if it exists, or the F<lib> directory if not. A source/documentation file is one that ends with F<.pod>, F<.pl> and F<.pm>, or any file where the first line looks like a shebang line.
 
 =cut
 
@@ -259,8 +258,7 @@ A Perl file is:
 * Any file that has a first line with a shebang and C<"perl"> on it;
 * Any file that ends in F<.bat> and has a first line with C<"--*-Perl-*--"> on it.
 
-The order of the files returned is machine-dependent.  If you want them
-sorted, you'll have to sort them yourself.
+The order of the files returned is machine-dependent.  If you want them sorted, you'll have to sort them yourself.
 
 =cut
 

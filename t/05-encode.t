@@ -1,10 +1,8 @@
 #!perl -T
 use strict;
 
+use encoding 'latin1';
 use Encode;
 use Test::Mojibake;
 
-my $encode = $INC{'Encode.pm'};
-$encode =~ s{\.pm$}{/};
-
-all_files_encoding_ok($encode);
+all_files_encoding_ok(values %INC);
