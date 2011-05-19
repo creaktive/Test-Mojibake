@@ -4,7 +4,7 @@ Test::Mojibake - check your source for encoding misbehavior.
 
 =head1 VERSION
 
-version 0.1
+version 0.2
 
 =head1 SYNOPSIS
 
@@ -128,7 +128,7 @@ Return codes:
 
 =back
 
-Original code, in PHP: L<http://www.php.net/manual/en/function.utf8-encode.php#85293>
+L<Unicode::CheckUTF8> is highly recommended, however, it is optional and this function will fallback to the Pure Perl implementation of the following PHP code: L<http://www.php.net/manual/en/function.utf8-encode.php#85293>
 
 =encoding utf8
 
@@ -149,6 +149,8 @@ Similarly, POD encoding can be changed via:
 Correspondingly, C<no utf8>/C<=encoding latin1> put Perl back into ISO-8859-1 mode.
 
 Actually, L<Test::Mojibake> only cares about UTF-8, as it is roughly safe to be detected. So, when UTF-8 characters are detected without preceding declaration, an error is reported. On the other way, non-UTF-8 characters in UTF-8 mode are wrong, either.
+
+If present, L<Unicode::CheckUTF8> module (XS wrapper) will be used to validate UTF-8 strings, note that it is B<30 times faster> and a lot more Unicode Consortium compliant than the built-in Pure Perl implementation!
 
 UTF-8 BOM (Byte Order Mark) is also detected as an error. While Perl is OK handling BOM, your OS probably isn't. Check out:
 
@@ -172,6 +174,10 @@ If you are wondering why only whole-line comments are stripped, check the second
 =item *
 
 L<common::sense>
+
+=item *
+
+L<Dist::Zilla::Plugin::MojibakeTests>
 
 =item *
 
