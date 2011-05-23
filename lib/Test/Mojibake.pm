@@ -2,14 +2,18 @@
 package Test::Mojibake;
 # ABSTRACT: check your source for encoding misbehavior.
 
-=encoding utf8
+=for test_synopsis
+my ($file, $num_tests);
 
 =head1 SYNOPSIS
 
-L<Test::Mojibake> lets you check for inconsistencies in source/documentation encoding, and report its results in standard L<Test::Simple> fashion.
+    # Test::Mojibake lets you check for inconsistencies in source/documentation encoding, and report its results in standard Test::Simple fashion.
 
-    use Test::Mojibake tests => $num_tests;
+    use Test::Mojibake;
     file_encoding_ok($file, 'Valid encoding');
+    done_testing($num_tests);
+
+=head1 SAMPLE TEST SCRIPT
 
 Module authors can include the following in a F<t/mojibake.t> file and have L<Test::Mojibake> automatically find and check all source files in a module distribution:
 
@@ -32,7 +36,7 @@ Module authors can include the following in a F<t/mojibake.t> file and have L<Te
 
 =head1 DESCRIPTION
 
-Many modern text editors automatically save files using UTF-8 codification, however, L<perl> interpreter does not expects it I<by default>. Whereas this does not represent a big deal on (most) backend-oriented programs, Web framework (L<Catalyst>, L<Mojolicious>) based applications will suffer of so-called L<Mojibake|http://en.wikipedia.org/wiki/Mojibake> (lit. "unintelligible sequence of characters").
+Many modern text editors automatically save files using UTF-8 codification, however, L<perl> interpreter does not expects it I<by default>. Whereas this does not represent a big deal on (most) backend-oriented programs, Web framework (L<Catalyst|http://www.catalystframework.org/>, L<Mojolicious|http://mojolicio.us/>) based applications will suffer of so-called L<Mojibake|http://en.wikipedia.org/wiki/Mojibake> (lit. "unintelligible sequence of characters").
 
 Even worse: if an editor saves BOM (Byte Order Mark, C<U+FEFF> character in Unicode) at the start of the script with executable bit set (on Unix systems), it won't execute at all, due to shebang corruption.
 
@@ -89,7 +93,7 @@ use strict;
 use utf8;
 use warnings 'all';
 
-our $VERSION = '0.2';
+our $VERSION = '0.3';
 
 use 5.008;
 use File::Spec;
@@ -181,7 +185,7 @@ sub file_encoding_ok {
 
                 my @type = qw(0 0 0);
                 ++$type[_detect_utf8(\$_)];
-                my ($latin1, $ascii, $utf8) = @type;
+                my ($latin1, $utf8) = @type[0, 2];
 
                 if (/^use\s+utf8$/) {
                     $use_utf8 = 1;
@@ -205,7 +209,7 @@ sub file_encoding_ok {
             # POD
             my @type = qw(0 0 0);
             ++$type[_detect_utf8(\$line)];
-            my ($latin1, $ascii, $utf8) = @type;
+            my ($latin1, $utf8) = @type[0, 2];
 
             if (($pod_utf8 == 0) && $utf8) {
                 $Test->ok(0, $name);
@@ -228,7 +232,7 @@ sub file_encoding_ok {
 
 =func all_files_encoding_ok( [@entries] )
 
-Validates codification of all the files under C<@entries>. It runs L<all_files()> on directories and assumes everything else to be a file to be tested. It calls the C<plan()> function for you (one test for each file), so you can't have already called C<plan>.
+Validates codification of all the files under C<@entries>. It runs C<all_files()> on directories and assumes everything else to be a file to be tested. It calls the C<plan()> function for you (one test for each file), so you can't have already called C<plan>.
 
 If C<@entries> is empty or not passed, the function finds all source/documentation files in files in the F<blib> directory if it exists, or the F<lib> directory if not. A source/documentation file is one that ends with F<.pod>, F<.pl> and F<.pm>, or any file where the first line looks like a shebang line.
 

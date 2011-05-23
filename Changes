@@ -1,2 +1,10 @@
-0.2 - added optional Unicode::CheckUTF8 support
-0.1 - first release
+Changelog for Test::Mojibake
+
+0.3     2011-05-23
+ * better tests
+
+0.2     2011-05-19
+ * added optional Unicode::CheckUTF8 support
+
+0.1     2011-05-17
+ * first release
