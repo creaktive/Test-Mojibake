@@ -1,4 +1,3 @@
-#!/usr/bin/perl
 package Test::Mojibake;
 # ABSTRACT: check your source for encoding misbehavior.
 
@@ -93,9 +92,8 @@ use strict;
 use utf8;
 use warnings 'all';
 
-our $VERSION = '0.3';
+# VERSION
 
-use 5.008;
 use File::Spec;
 use Test::Builder;
 
@@ -284,7 +282,7 @@ sub all_files {
                 my $filename = File::Spec->catfile($file, $newfile);
                 if (-f $filename) {
                     push @queue, $filename;
-                }else {
+                } else {
                     push @queue, File::Spec->catdir($file, $newfile);
                 }
             }
@@ -376,14 +374,19 @@ sub _detect_utf8 {
                 return 0;
             }
 
+            my @buf = ((0) x 4, $c & ((1 << (6 - $bits)) - 1));
             while ($bits > 1) {
                 $i++;
                 $b = ord(substr(${$str}, $i, 1));
                 if (($b < 128) || ($b > 191)) {
                     return 0;
                 }
+                $buf[7 - $bits] = $b & 0x3f;
                 $bits--;
             }
+            return 0 if "\0\0\0\0\0\x2f" eq pack 'c6', @buf;
+        } elsif ($c == 0) {
+            return 0;
         }
     }
 
