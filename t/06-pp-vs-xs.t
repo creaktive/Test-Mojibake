@@ -18,7 +18,7 @@ our @buf;
 our $err = 0;
 for (qw(latin1 ascii utf8)) {   # _detect_utf8() to return qw(0 1 2)
     local $/ = undef;
-    ok(open(my $fh, '<:raw', 't/' . $_ . '.pl'), "opening $_ test");
+    ok(open(my $fh, '<:raw', 't/good/' . $_ . '.pl'), "opening $_ test");
     push @buf, <$fh>;
     close $fh;
 }

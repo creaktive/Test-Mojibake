@@ -8,6 +8,6 @@ BEGIN {
 }
 
 for (qw(ascii latin1 utf8 mojibake)) {
-    my $file = 't/' . $_ . '.pod';
+    my $file = 't/good/' . $_ . '.pod';
     file_encoding_ok($file, "$file encoding is OK");
 }

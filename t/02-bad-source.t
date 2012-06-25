@@ -1,7 +1,7 @@
 #!perl -T
 use strict;
 
-use Test::Builder::Tester tests => 3;
+use Test::Builder::Tester tests => 4;
 use Test::More;
 
 BEGIN {
@@ -12,7 +12,7 @@ BAD: {
     my ($name, $file);
 
     $name = 'Latin-1 with "use utf8"!';
-    $file = 't/bad-latin1.pl';
+    $file = 't/bad/bad-latin1.pl';
     test_out("not ok 1 - $name");
     file_encoding_ok($file, $name);
     test_fail(-1);
@@ -20,10 +20,18 @@ BAD: {
     test_test("$name is bad");
 
     $name = 'UTF-8 with no "use utf8"!';
-    $file = 't/bad-utf8.pl';
+    $file = 't/bad/bad-utf8.pl';
     test_out("not ok 1 - $name");
     file_encoding_ok($file, $name);
     test_fail(-1);
     test_diag("UTF-8 unexpected in $file, line 3 (source)");
+    test_test("$name is bad");
+
+    $name = 'no source at all';
+    $file = 't/bad/dummy.pl';
+    test_out("not ok 1 - $name");
+    file_encoding_ok($file, $name);
+    test_fail(-1);
+    test_diag("$file does not exist");
     test_test("$name is bad");
 }
