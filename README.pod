@@ -1,3 +1,5 @@
+=pod
+
 =encoding utf8
 
 =head1 NAME
@@ -6,7 +8,7 @@ Test::Mojibake - check your source for encoding misbehavior.
 
 =head1 VERSION
 
-version 0.4
+version 0.5
 
 =head1 SYNOPSIS
 

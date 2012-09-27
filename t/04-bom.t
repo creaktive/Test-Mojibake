@@ -10,7 +10,7 @@ BEGIN {
 
 BAD: {
     my $name = 'Byte Order Mark is unnecessary!';
-    my $file = 't/bad/bom.pl';
+    my $file = 't/bad/bom.pl_';
     test_out("not ok 1 - $name");
     file_encoding_ok($file, $name);
     test_fail(-1);
