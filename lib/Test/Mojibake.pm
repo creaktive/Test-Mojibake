@@ -238,7 +238,7 @@ If C<@entries> is empty or not passed, the function finds all source/documentati
 
 sub all_files_encoding_ok {
     my @args = @_ ? @_ : _starting_points();
-    my @files = map { -d $_ ? all_files($_) : $_ } @args;
+    my @files = map { -d $_ ? all_files($_) : (-f $_ ? $_ : ()) } @args;
 
     $Test->plan(tests => scalar @files);
 
