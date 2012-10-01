@@ -1,7 +1,7 @@
 #!perl -T
 use strict;
 
-use Test::Builder::Tester tests => 3;
+use Test::Builder::Tester tests => 4;
 use Test::More;
 
 BEGIN {
@@ -25,5 +25,13 @@ BAD: {
     file_encoding_ok($file, $name);
     test_fail(-1);
     test_diag("Non-UTF-8 unexpected in $file, line 7 (POD)");
+    test_test("$name is bad");
+
+    $name = 'Multiple "=encoding"!';
+    $file = 't/bad/mojibake.pod_';
+    test_out("not ok 1 - $name");
+    file_encoding_ok($file, $name);
+    test_fail(-1);
+    test_diag("POD =encoding redeclared in t/bad/mojibake.pod_, line 13");
     test_test("$name is bad");
 }

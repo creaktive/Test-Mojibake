@@ -8,7 +8,7 @@ Test::Mojibake - check your source for encoding misbehavior.
 
 =head1 VERSION
 
-version 0.6
+version 0.7
 
 =head1 SYNOPSIS
 
