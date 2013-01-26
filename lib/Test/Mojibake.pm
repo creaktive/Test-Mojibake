@@ -205,7 +205,7 @@ sub file_encoding_ok {
                 ++$type[_detect_utf8(\$_)];
                 my ($latin1, $utf8) = @type[0, 2];
 
-                if (/^use\s+utf8$/x) {
+                if (/^use\s+utf8(?:::all)?$/x) {
                     $use_utf8 = 1;
                 } elsif (/^use\s+common::sense$/x) {
                     $use_utf8 = 1;
