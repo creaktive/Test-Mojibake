@@ -59,6 +59,10 @@ L<Test::Mojibake> validates codification of both source (Perl code) and document
 
 or:
 
+ use utf8::all;
+
+or even:
+
  use common::sense;
 
 Similarly, POD encoding can be changed via:
@@ -425,6 +429,7 @@ sub _detect_utf8 {
 
 =for :list
 * L<common::sense>
+* L<utf8::all>
 * L<Dist::Zilla::Plugin::MojibakeTests>
 * L<Test::Perl::Critic>
 * L<Test::Pod>

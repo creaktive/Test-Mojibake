@@ -145,6 +145,10 @@ L<Test::Mojibake> validates codification of both source (Perl code) and document
 
 or:
 
+ use utf8::all;
+
+or even:
+
  use common::sense;
 
 Similarly, POD encoding can be changed via:
@@ -179,6 +183,10 @@ If you are wondering why only whole-line comments are stripped, check the second
 =item *
 
 L<common::sense>
+
+=item *
+
+L<utf8::all>
 
 =item *
 
