@@ -1,5 +1,6 @@
 #!perl -T
 use strict;
+use warnings qw(all);
 
 use Test::Builder::Tester tests => 1;
 use Test::More;
@@ -7,6 +8,7 @@ use Test::More;
 use Test::Mojibake;
 
 BAD: {
+    ## no critic (ProhibitNoWarnings)
     no warnings qw(redefine);
     *Test::Builder::plan = sub {};
 

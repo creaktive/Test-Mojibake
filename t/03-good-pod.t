@@ -1,5 +1,6 @@
 #!perl -T
 use strict;
+use warnings qw(all);
 
 use Test::More tests => 4;
 

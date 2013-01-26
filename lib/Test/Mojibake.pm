@@ -89,15 +89,14 @@ If you are wondering why only whole-line comments are stripped, check the second
 =cut
 
 use strict;
-use utf8;
-use warnings 'all';
+use warnings qw(all);
 
 # VERSION
 
-use File::Spec;
+use File::Spec::Functions;
 use Test::Builder;
 
-our %ignore_dirs = (
+my %ignore_dirs = (
     '.bzr'  => 'Bazaar',
     '.git'  => 'Git',
     '.hg'   => 'Mercurial',
@@ -110,23 +109,30 @@ our %ignore_dirs = (
     _sgbak  => 'Vault/Fortress',
 );
 
-my $Test = new Test::Builder;
+my $Test = Test::Builder->new;
 
 # Use a faster/safer XS alternative, if present
-eval 'use Unicode::CheckUTF8 qw(is_utf8)';  ## no critic
+
+## no critic (ProhibitStringyEval, RequireCheckingReturnValueOfEval)
+eval 'require Unicode::CheckUTF8';
+
+## no critic (ProhibitPackageVars)
 our $use_xs = $@ ? 0 : 1;
 
 sub import {
-    my $self = shift;
+    my ($self, @args) = @_;
     my $caller = caller;
 
     for my $func (qw(file_encoding_ok all_files all_files_encoding_ok)) {
-        no strict 'refs';   ## no critic
+        ## no critic (ProhibitNoStrict)
+        no strict 'refs';
         *{$caller."::".$func} = \&$func;
     }
 
     $Test->exported_to($caller);
-    $Test->plan(@_);
+    $Test->plan(@args);
+
+    return;
 }
 
 =func file_encoding_ok( FILENAME[, TESTNAME ] )
@@ -139,10 +145,12 @@ The optional second argument C<TESTNAME> is the name of the test.  If it is omit
 
 =cut
 
+## no critic (ProhibitCascadingIfElse, ProhibitExcessComplexity)
 sub file_encoding_ok {
-    my $file = shift;
-    my $name = @_ ? shift : "Mojibake test for $file";
+    my ($file, $name) = @_;
+    $name = defined($name) ? $name : "Mojibake test for $file";
 
+    ## no critic (ProhibitFiletest_f)
     unless (-f $file) {
         $Test->ok(0, $name);
         $Test->diag("$file does not exist");
@@ -151,6 +159,7 @@ sub file_encoding_ok {
 
     my $fh;
     unless (open($fh, '<:raw', $file)) {
+        close $fh;
         $Test->ok(0, $name);
         $Test->diag("Can't open $file: $!");
         return;
@@ -162,13 +171,13 @@ sub file_encoding_ok {
     my $n           = 1;
     my %pod         = ();
     while (my $line = <$fh>) {
-        if (($n == 1) && $line =~ /^\x{EF}\x{BB}\x{BF}/) {
+        if (($n == 1) && $line =~ /^\x{EF}\x{BB}\x{BF}/x) {
             $Test->ok(0, $name);
             $Test->diag("UTF-8 BOM (Byte Order Mark) found in $file");
             return;
-        } elsif ($line =~ /^=+cut\s*$/) {
+        } elsif ($line =~ /^=+cut\s*$/x) {
             $pod = 0;
-        } elsif ($line =~ /^=+encoding\s+([\w\-]+)/) {
+        } elsif ($line =~ /^=+encoding\s+([\w\-]+)/x) {
             my $pod_encoding = lc $1;
             $pod_encoding =~ y/-//d;
 
@@ -183,24 +192,24 @@ sub file_encoding_ok {
 
             $pod_utf8 = ($pod_encoding eq 'utf8') ? 1 : 0;
             $pod = 1;
-        } elsif ($line =~ /^=+\w+/) {
+        } elsif ($line =~ /^=+\w+/x) {
             $pod = 1;
         } elsif ($pod == 0) {
             # source
-            $line =~ s/^\s*#.*$//s;     # disclaimers placed in headers frequently contain UTF-8 *before* it's usage is declared.
-            foreach (split m{;}, $line) {
+            $line =~ s/^\s*#.*$//sx;    # disclaimers placed in headers frequently contain UTF-8 *before* it's usage is declared.
+            foreach (split m{;}x, $line) {
                 # trim
-                s/^\s+|\s+$//gs;
+                s/^\s+|\s+$//gsx;
 
                 my @type = qw(0 0 0);
                 ++$type[_detect_utf8(\$_)];
                 my ($latin1, $utf8) = @type[0, 2];
 
-                if (/^use\s+utf8$/) {
+                if (/^use\s+utf8$/x) {
                     $use_utf8 = 1;
-                } elsif (/^use\s+common::sense$/) {
+                } elsif (/^use\s+common::sense$/x) {
                     $use_utf8 = 1;
-                } elsif (/^no\s+utf8$/) {
+                } elsif (/^no\s+utf8$/x) {
                     $use_utf8 = 0;
                 }
 
@@ -248,7 +257,10 @@ If C<@entries> is empty or not passed, the function finds all source/documentati
 =cut
 
 sub all_files_encoding_ok {
-    my @args = @_ ? @_ : _starting_points();
+    my (@args) = @_;
+    @args = _starting_points() unless @args;
+
+    ## no critic (ProhibitFiletest_f)
     my @files = map { -d $_ ? all_files($_) : (-f $_ ? $_ : ()) } @args;
 
     $Test->plan(tests => scalar @files);
@@ -276,7 +288,8 @@ The order of the files returned is machine-dependent.  If you want them sorted, 
 =cut
 
 sub all_files {
-    my @queue = @_ ? @_ : _starting_points();
+    my (@queue) = @_;
+    @queue = _starting_points() unless @queue;
     my @mod = ();
 
     while (@queue) {
@@ -286,18 +299,20 @@ sub all_files {
             my @newfiles = readdir $dh;
             closedir $dh;
 
-            @newfiles = File::Spec->no_upwards(@newfiles);
+            @newfiles = no_upwards(@newfiles);
             @newfiles = grep { not exists $ignore_dirs{$_} } @newfiles;
 
             foreach my $newfile (@newfiles) {
-                my $filename = File::Spec->catfile($file, $newfile);
-                if (-f $filename) {
+                my $filename = catfile($file, $newfile);
+                unless (-d $filename) {
                     push @queue, $filename;
                 } else {
-                    push @queue, File::Spec->catdir($file, $newfile);
+                    push @queue, catdir($file, $newfile);
                 }
             }
         }
+
+        ## no critic (ProhibitFiletest_f)
         if (-f $file) {
             push @mod, $file if _is_perl($file);
         }
@@ -313,15 +328,15 @@ sub _starting_points {
 sub _is_perl {
     my $file = shift;
 
-    return 1 if $file =~ /\.PL$/;
-    return 1 if $file =~ /\.p(?:l|m|od)$/;
-    return 1 if $file =~ /\.t$/;
+    return 1 if $file =~ /\.PL$/x;
+    return 1 if $file =~ /\.p(?:l|m|od)$/x;
+    return 1 if $file =~ /\.t$/x;
 
     open my $fh, '<', $file or return;
     my $first = <$fh>;
     close $fh;
 
-    return 1 if defined $first && ($first =~ /(?:^#!.*perl)|--\*-Perl-\*--/);
+    return 1 if defined $first && ($first =~ /(?:^\#!.*perl)|--\*-Perl-\*--/x);
 
     return;
 }
@@ -342,13 +357,15 @@ L<Unicode::CheckUTF8> is highly recommended, however, it is optional and this fu
 =cut
 
 sub _detect_utf8 {
+
     use bytes;
+    use integer;
 
     my $str     = shift;
 
     if ($use_xs) {
-        if (is_utf8(${$str})) {
-            return (${$str} =~ m{[\x{80}-\x{ff}]}) ? 2 : 1
+        if (Unicode::CheckUTF8::is_utf8(${$str})) {
+            return (${$str} =~ m{[\x{80}-\x{ff}]}x) ? 2 : 1
         } else {
             return 0;
         }
@@ -356,7 +373,7 @@ sub _detect_utf8 {
 
     my $d       = 0;
     my $c       = 0;
-    my $b       = 0;
+    my $bv      = 0;
     my $bits    = 0;
     my $len     = length ${$str};
 
@@ -388,11 +405,11 @@ sub _detect_utf8 {
             my @buf = ((0) x 4, $c & ((1 << (6 - $bits)) - 1));
             while ($bits > 1) {
                 $i++;
-                $b = ord(substr(${$str}, $i, 1));
-                if (($b < 128) || ($b > 191)) {
+                $bv = ord(substr(${$str}, $i, 1));
+                if (($bv < 128) || ($bv > 191)) {
                     return 0;
                 }
-                $buf[7 - $bits] = $b & 0x3f;
+                $buf[7 - $bits] = $bv & 0x3f;
                 $bits--;
             }
             return 0 if "\0\0\0\0\0\x2f" eq pack 'c6', @buf;

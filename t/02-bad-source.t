@@ -1,5 +1,6 @@
 #!perl -T
 use strict;
+use warnings qw(all);
 
 use Test::Builder::Tester tests => 4;
 use Test::More;
@@ -16,7 +17,7 @@ BAD: {
     test_out("not ok 1 - $name");
     file_encoding_ok($file, $name);
     test_fail(-1);
-    test_diag("Non-UTF-8 unexpected in $file, line 4 (source)");
+    test_diag("Non-UTF-8 unexpected in $file, line 6 (source)");
     test_test("$name is bad");
 
     $name = 'UTF-8 with no "use utf8"!';
@@ -24,7 +25,7 @@ BAD: {
     test_out("not ok 1 - $name");
     file_encoding_ok($file, $name);
     test_fail(-1);
-    test_diag("UTF-8 unexpected in $file, line 3 (source)");
+    test_diag("UTF-8 unexpected in $file, line 5 (source)");
     test_test("$name is bad");
 
     $name = 'no source at all';

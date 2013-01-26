@@ -1,8 +1,11 @@
 #!perl -T
 use strict;
+use warnings qw(all);
 
 use Test::More;
 use Test::Mojibake;
+
+## no critic (ProhibitPackageVars, ProtectPrivateSubs)
 
 $Test::Mojibake::use_xs = 0;
 

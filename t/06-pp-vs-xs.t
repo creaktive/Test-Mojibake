@@ -1,7 +1,10 @@
 #!perl -T
 use strict;
+use warnings qw(all);
 
 use Test::More;
+
+## no critic (ProhibitPackageVars, ProtectPrivateSubs)
 
 BEGIN {
     use_ok('Benchmark', 'countit');
@@ -16,9 +19,9 @@ unless ($Test::Mojibake::use_xs) {
 
 our @buf;
 our $err = 0;
-for (qw(latin1 ascii utf8)) {   # _detect_utf8() to return qw(0 1 2)
+for (qw(latin1.pl ascii.pl utf8.pl_)) { # _detect_utf8() to return qw(0 1 2)
     local $/ = undef;
-    ok(open(my $fh, '<:raw', 't/good/' . $_ . '.pl'), "opening $_ test");
+    ok(open(my $fh, '<:raw', 't/good/' . $_), "opening $_ test");
     push @buf, <$fh>;
     close $fh;
 }
@@ -43,4 +46,6 @@ sub run {
     } continue {
         ++$i;
     }
+
+    return;
 }
