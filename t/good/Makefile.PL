@@ -13,24 +13,23 @@ my %WriteMakefileArgs = (
   "AUTHOR" => "Stanislaw Pusep <stas\@sysd.org>",
   "BUILD_REQUIRES" => {
     "Encode" => 0,
-    "ExtUtils::MakeMaker" => "6.30",
     "File::Find" => 0,
     "File::Temp" => 0,
     "Test::Builder::Tester" => 0,
-    "Test::More" => 0,
-    "common::sense" => 0,
-    "open" => 0,
-    "utf8" => 0
+    "Test::More" => 0
   },
   "CONFIGURE_REQUIRES" => {
     "ExtUtils::MakeMaker" => "6.30"
   },
   "DISTNAME" => "Test-Mojibake",
-  "EXE_FILES" => [],
+  "EXE_FILES" => [
+    "bin/scan_mojibake"
+  ],
   "LICENSE" => "perl",
   "NAME" => "Test::Mojibake",
   "PREREQ_PM" => {
     "File::Spec::Functions" => 0,
+    "Pod::Usage" => 0,
     "Test::Builder" => 0,
     "bytes" => 0,
     "integer" => 0,
