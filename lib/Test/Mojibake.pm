@@ -428,6 +428,7 @@ sub _detect_utf8 {
 =head1 SEE ALSO
 
 =for :list
+* L<scan_mojibake>
 * L<common::sense>
 * L<utf8::all>
 * L<Dist::Zilla::Plugin::MojibakeTests>

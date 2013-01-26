@@ -182,6 +182,10 @@ If you are wondering why only whole-line comments are stripped, check the second
 
 =item *
 
+L<scan_mojibake>
+
+=item *
+
 L<common::sense>
 
 =item *
