@@ -34,7 +34,7 @@ Always C<use utf8>/C<use common::sense> when saving source as UTF-8;
 
 =item *
 
-Always specify C<=encoding utf8> when saving POD as UTF-8;
+Always specify C<=encoding UTF-8> when saving POD as UTF-8;
 
 =item *
 

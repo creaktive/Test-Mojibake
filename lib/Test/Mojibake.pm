@@ -43,7 +43,7 @@ Avoiding codification problems is quite simple:
 
 =for :list
 * Always C<use utf8>/C<use common::sense> when saving source as UTF-8;
-* Always specify C<=encoding utf8> when saving POD as UTF-8;
+* Always specify C<=encoding UTF-8> when saving POD as UTF-8;
 * Do neither of above when saving as ISO-8859-1;
 * B<Never> save BOM (not that it's wrong; just avoid it as you'll barely notice it's presence when in trouble).
 
