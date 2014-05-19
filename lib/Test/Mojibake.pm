@@ -200,7 +200,7 @@ sub file_encoding_ok {
             $pod = 1;
         } elsif ($pod == 0) {
             # source
-            $line =~ s/^\s*#.*$//sx;    # disclaimers placed in headers frequently contain UTF-8 *before* it's usage is declared.
+            $line =~ s/^\s*#.*$//s;    # disclaimers placed in headers frequently contain UTF-8 *before* its usage is declared.
             foreach (split m{;}x, $line) {
                 # trim
                 s/^\s+|\s+$//gsx;
