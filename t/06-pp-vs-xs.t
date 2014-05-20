@@ -19,7 +19,7 @@ unless ($Test::Mojibake::use_xs) {
 
 our @buf;
 our $err = 0;
-for (qw(latin1.pl ascii.pl utf8.pl_)) { # _detect_utf8() to return qw(0 1 2)
+for (qw(latin1.pl ascii.pod utf8.pl_)) { # _detect_utf8() to return qw(0 1 2)
     local $/ = undef;
     ok(open(my $fh, '<:raw', 't/good/' . $_), "opening $_ test");
     push @buf, <$fh>;
