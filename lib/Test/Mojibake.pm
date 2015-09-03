@@ -267,6 +267,11 @@ sub all_files_encoding_ok {
     ## no critic (ProhibitFiletest_f)
     my @files = map { -d $_ ? all_files($_) : (-f $_ ? $_ : ()) } @args;
 
+    unless (@files) {
+        $Test->plan(skip_all => 'could not find any files to test');
+        return;
+    }
+
     $Test->plan(tests => scalar @files);
 
     my $ok = 1;
