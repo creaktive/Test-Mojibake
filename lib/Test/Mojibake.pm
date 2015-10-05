@@ -411,7 +411,7 @@ sub _detect_utf8 {
                 return 0;
             }
 
-            my @buf = ((0) x 4, $c & ((1 << (6 - $bits)) - 1));
+            my @buf = ((0) x 4, $c & ((1 << (7 - $bits)) - 1));
             while ($bits > 1) {
                 $i++;
                 $bv = ord(substr(${$str}, $i, 1));
