@@ -118,10 +118,14 @@ my $Test = Test::Builder->new;
 # Use a faster/safer XS alternative, if present
 
 ## no critic (ProhibitStringyEval, RequireCheckingReturnValueOfEval)
-eval 'require Unicode::CheckUTF8';
-
-## no critic (ProhibitPackageVars)
-our $use_xs = $@ ? 0 : 1;
+our ($use_xs, $use_pp) = (0, 0);
+if ( eval 'require Unicode::CheckUTF8' ) {
+    $use_xs = 1;
+}
+## no critic (ProhibitStringyEval, RequireCheckingReturnValueOfEval)
+elsif ( eval 'require Unicode::CheckUTF8::PP' ) {
+    $use_pp = 1;
+}
 
 sub import {
     my ($self, @args) = @_;
@@ -378,8 +382,14 @@ sub _detect_utf8 {
         } else {
             return 0;
         }
+    } elsif ($use_pp) {
+        if (Unicode::CheckUTF8::PP::is_utf8(${$str})) {
+            return (${$str} =~ m{[\x{80}-\x{ff}]}x) ? 2 : 1
+        } else {
+            return 0;
+        }
     }
-
+    
     my $d       = 0;
     my $c       = 0;
     my $bv      = 0;
