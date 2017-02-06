@@ -12,12 +12,6 @@ version 1.2
 
 =head1 SYNOPSIS
 
-    # Test::Mojibake lets you check for inconsistencies in source/documentation encoding, and report its results in standard Test::Simple fashion.
-
-    use Test::Mojibake;
-    file_encoding_ok($file, 'Valid encoding');
-    done_testing($num_tests);
-
 =head1 DESCRIPTION
 
 Many modern text editors automatically save files using UTF-8 codification, however, L<perl> interpreter does not expects it I<by default>. Whereas this does not represent a big deal on (most) backend-oriented programs, Web framework (L<Catalyst|http://www.catalystframework.org/>, L<Mojolicious|http://mojolicio.us/>) based applications will suffer of so-called L<Mojibake|http://en.wikipedia.org/wiki/Mojibake> (lit. "unintelligible sequence of characters").
@@ -115,6 +109,12 @@ Return codes:
 L<Unicode::CheckUTF8> is highly recommended, however, it is optional and this function will fallback to the Pure Perl implementation of the following PHP code: L<http://www.php.net/manual/en/function.utf8-encode.php#85293>
 
 =for test_synopsis my ($file, $num_tests);
+
+    # Test::Mojibake lets you check for inconsistencies in source/documentation encoding, and report its results in standard Test::Simple fashion.
+
+    use Test::Mojibake;
+    file_encoding_ok($file, 'Valid encoding');
+    done_testing($num_tests);
 
 =head1 SAMPLE TEST SCRIPT
 
@@ -232,20 +232,28 @@ Stanislaw Pusep <stas@sysd.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2015 by Stanislaw Pusep.
+This software is copyright (c) 2017 by Stanislaw Pusep.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =head1 CONTRIBUTORS
 
-=for stopwords Dave Rolsky Karen Etheridge
+=for stopwords Dave Rolsky Hunter McMillen John SJ Anderson Karen Etheridge
 
 =over 4
 
 =item *
 
 Dave Rolsky <autarch@urth.org>
+
+=item *
+
+Hunter McMillen <mcmillhj@gmail.com>
+
+=item *
+
+John SJ Anderson <john@genehack.org>
 
 =item *
 

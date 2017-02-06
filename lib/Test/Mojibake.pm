@@ -1,10 +1,10 @@
 package Test::Mojibake;
 # ABSTRACT: check your source for encoding misbehavior.
 
+=head1 SYNOPSIS
+
 =for test_synopsis
 my ($file, $num_tests);
-
-=head1 SYNOPSIS
 
     # Test::Mojibake lets you check for inconsistencies in source/documentation encoding, and report its results in standard Test::Simple fashion.
 
@@ -117,12 +117,11 @@ my $Test = Test::Builder->new;
 
 # Use a faster/safer XS alternative, if present
 
-## no critic (ProhibitStringyEval, RequireCheckingReturnValueOfEval)
+## no critic (ProhibitStringyEval, RequireCheckingReturnValueOfEval, ProhibitPackageVars)
 our ($use_xs, $use_pp) = (0, 0);
 if ( eval 'require Unicode::CheckUTF8' ) {
     $use_xs = 1;
 }
-## no critic (ProhibitStringyEval, RequireCheckingReturnValueOfEval)
 elsif ( eval 'require Unicode::CheckUTF8::PP' ) {
     $use_pp = 1;
 }
@@ -389,7 +388,7 @@ sub _detect_utf8 {
             return 0;
         }
     }
-    
+
     my $d       = 0;
     my $c       = 0;
     my $bv      = 0;
