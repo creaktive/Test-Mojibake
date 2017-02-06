@@ -3,10 +3,8 @@ package Test::Mojibake;
 
 =head1 SYNOPSIS
 
-=for test_synopsis
-my ($file, $num_tests);
-
     # Test::Mojibake lets you check for inconsistencies in source/documentation encoding, and report its results in standard Test::Simple fashion.
+    no strict 'vars';
 
     use Test::Mojibake;
     file_encoding_ok($file, 'Valid encoding');

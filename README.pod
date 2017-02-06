@@ -8,9 +8,16 @@ Test::Mojibake - check your source for encoding misbehavior.
 
 =head1 VERSION
 
-version 1.2
+version 1.3
 
 =head1 SYNOPSIS
+
+    # Test::Mojibake lets you check for inconsistencies in source/documentation encoding, and report its results in standard Test::Simple fashion.
+    no strict 'vars';
+
+    use Test::Mojibake;
+    file_encoding_ok($file, 'Valid encoding');
+    done_testing($num_tests);
 
 =head1 DESCRIPTION
 
@@ -107,14 +114,6 @@ Return codes:
 =back
 
 L<Unicode::CheckUTF8> is highly recommended, however, it is optional and this function will fallback to the Pure Perl implementation of the following PHP code: L<http://www.php.net/manual/en/function.utf8-encode.php#85293>
-
-=for test_synopsis my ($file, $num_tests);
-
-    # Test::Mojibake lets you check for inconsistencies in source/documentation encoding, and report its results in standard Test::Simple fashion.
-
-    use Test::Mojibake;
-    file_encoding_ok($file, 'Valid encoding');
-    done_testing($num_tests);
 
 =head1 SAMPLE TEST SCRIPT
 
